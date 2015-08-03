@@ -49,6 +49,9 @@ angular.module('nourish.services', [])
   };
 })
 
+/**
+ * The monolithic factory for hall, menu, and item data
+ */
 .factory('ItemService', function($q, $http, AppSettings, Helpers) {
 
   /**
@@ -62,7 +65,6 @@ angular.module('nourish.services', [])
    * @type {Object}
    */
   var data = {
-    // Raw halls/meals/items from api
     all: [],
     halls: {},
     meals: {},
@@ -137,21 +139,11 @@ angular.module('nourish.services', [])
     }
   }
 
-  // Factory
-
+  /**
+   * The factory
+   * @type {Object}
+   */
   var factory = {};
-
-  factory.allHalls = function() {
-    return setup().then(function(data) {
-      return Object.keys(data.halls).map(function(k) { return data.halls[k] });
-    });
-  };
-
-  factory.allMeals = function() {
-    return setup().then(function(data) {
-      return Object.keys(data.meals).map(function(k) { return data.meals[k] });
-    });
-  };
 
   /**
    * Gets halls/meals/items for given date
@@ -204,6 +196,10 @@ angular.module('nourish.services', [])
     return this.date(today);
   };
 
+  /**
+   * Get list of upcoming dates
+   * @return {array} list of upcoming dates (Moment objects)
+   */
   factory.datesList = function() {
     return setup().then(function(data) {
       var dates = [];
@@ -220,24 +216,68 @@ angular.module('nourish.services', [])
     });
   };
 
+  /**
+   * Get all halls
+   * @return {Promise} Promise w/ items array
+   */
+  factory.allHalls = function() {
+    return setup().then(function(data) {
+      return Object.keys(data.halls).map(function(k) { return data.halls[k] });
+    });
+  };
+
+  /**
+   * Get all meals
+   * @return {Promise} Promise w/ items array
+   */
+  factory.allMeals = function() {
+    return setup().then(function(data) {
+      return Object.keys(data.meals).map(function(k) { return data.meals[k] });
+    });
+  };
+
+  /**
+   * Get all items
+   * @return {Promise} Promise w/ items array
+   */
   factory.allItems = function() {
     return setup().then(function(data) {
       return Object.keys(data.items).map(function(k) { return data.items[k] });
     });
   };
 
+  /**
+   * Get hall with given id
+   * Must be called within a promise callback
+   * since it assumes data has been filled
+   * @param  {string} hallId
+   * @return {object}
+   */
   factory.hall = function(hallId) {
     return data.halls[hallId];
   };
 
+  /**
+   * Get meal with given id
+   * Must be called within a promise callback
+   * since it assumes data has been filled
+   * @param  {string} mealId
+   * @return {object}
+   */
   factory.meal = function(mealId) {
     return data.meals[mealId];
   };
 
+  /**
+   * Get item with given id
+   * Must be called within a promise callback
+   * since it assumes data has been filled
+   * @param  {string} itemId
+   * @return {object}
+   */
   factory.item = function(itemId) {
     return data.items[itemId];
   };
 
   return factory;
-
 });

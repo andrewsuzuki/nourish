@@ -55,7 +55,29 @@ angular.module('nourish.controllers', [])
 
 // Wings Finder Menu Controller, shows all wings in all halls for all
 // future dates within a single view
-.controller('MenuWingsCtrl', function($scope) {
+.controller('MenuWingsCtrl', function($scope, ItemService) {
+
+  // Loaded flag
+  $scope.loaded = false;
+
+  // Get all items
+  ItemService.allItems().then(function(items) {
+    var wings = [];
+
+    // Loop items
+    items.forEach(function(item) {
+      // Determine if item name contains 'wing'
+      if (item.name.toLowerCase().indexOf('wing') !== -1) {
+        wings.push(item);
+      }
+    });
+
+    // Set wings onto scope as items
+    $scope.items = wings;
+
+    // Mark as loaded
+    $scope.loaded = true;
+  });
 })
 
 // Chats controller, shows list of halls (effective chat rooms)
@@ -92,6 +114,10 @@ function HallShare($scope, $stateParams, $ionicModal, AppSettings, Helpers, hall
   // Loaded flag
   $scope.loaded = false;
 
+  // Meals list
+  $scope.meals = [];
+
+  // The current meal
   // TODO: change initial value depending on time of day
   $scope.currentMeal = 'Breakfast';
 

@@ -1,6 +1,12 @@
 <ion-view view-title="Wings Finder">
   <ion-content class="padding">
-    <div class="list card">
+    <ion-spinner ng-if="!loaded"></ion-spinner>
+    <div class="card" ng-if="loaded && items.length === 0">
+      <div class="item item-text-wrap">
+        Sorry, no wings were found.
+      </div>
+    </div>
+    <div class="list card" ng-if="loaded && items.length !== 0">
       <a ng-repeat="item in items" href="#" class="item">
         {{ item.name }}
       </a>
