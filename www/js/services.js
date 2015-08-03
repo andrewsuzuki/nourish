@@ -49,62 +49,30 @@ angular.module('nourish.services', [])
   };
 })
 
-.factory('ItemService', function($q, $http, AppSettings) {
+.factory('ItemService', function($q, $http, AppSettings, Helpers) {
+
+  /**
+   * If menu data has been retrieved by setup
+   * @type {Boolean}
+   */
   var dataLoaded = false;
 
+  /**
+   * All menu data
+   * @type {Object}
+   */
   var data = {
+    // Raw halls/meals/items from api
     all: [],
     halls: {},
     meals: {},
     items: {}
   };
 
-  // Get initial data, then organize
-  function setup() {
-    if (!dataLoaded) {
-      return getInit().then(function(hallsRaw) {
-        // Store raw halls -> meals -> items
-        data.all = hallsRaw;
-
-        // Associate items with their parent meals and halls
-        var items = {};
-        hallsRaw.forEach(function(hall) {
-          data.halls[hall._id] = hall;
-
-          hall.meals.forEach(function(meal) {
-            // Convert meal type id to meal type string
-            meal.type = mealType(meal.type);
-
-            data.meals[meal._id] = meal;
-
-            meal.items.forEach(function(item) {
-              if (!items.hasOwnProperty(item._id)) {
-                items[item._id] = item;
-                items[item._id].hallmeals = [];
-              }
-
-              items[item._id].hallmeals.push({
-                'hall': hall._id,
-                'meal': meal._id
-              });
-            });
-          });
-        });
-
-        data.items = items;
-
-        dataLoaded = true;
-
-        return data;
-      });
-    } else {
-      var deferred = $q.defer();
-      deferred.resolve(data);
-      return deferred.promise;
-    }
-  }
-
-  // Get initial data from API
+  /**
+   * Get all menu data from API
+   * @return {Promise} with raw halls data
+   */
   function getInit() {
     var deferred = $q.defer();
 
@@ -117,9 +85,57 @@ angular.module('nourish.services', [])
     return deferred.promise;
   }
 
-  function mealType(mealTypeId) {
-    return AppSettings.mealTypes[mealTypeId];
-  };
+  /**
+   * Grab menu data and organize it
+   * @return {[Promise]} Promise w/ data
+   */
+  function setup() {
+    // Only one call to our API is needed for menu data
+    // Check if we've done it yet
+    if (!dataLoaded) {
+      // Grab our raw data (halls)
+      return getInit().then(function(hallsRaw) {
+        // Store raw halls -> meals -> items
+        data.all = hallsRaw;
+
+        // Loop halls
+        data.all.forEach(function(hall) {
+          // Keep track of hall in data.halls by hall._id
+          data.halls[hall._id] = hall;
+
+          // Loop meals in hall
+          hall.meals.forEach(function(meal) {
+            // Convert meal type id (0-3) to meal type string
+            meal.type = Helpers.mealTypeToString(meal.type);
+
+            // Keep track of meal in data.meals by meal._id
+            data.meals[meal._id] = meal;
+
+            // Loop items in meal
+            meal.items.forEach(function(item) {
+              // Check if item already exists in data.items
+              if (!data.items.hasOwnProperty(item._id)) {
+                // If it doesn't, then add it
+                data.items[item._id] = item;
+              }
+            });
+          });
+        });
+
+        // Mark our data as loaded and organized
+        dataLoaded = true;
+
+        // Return data for promise callback
+        return data;
+      });
+    } else {
+      // Since we already have our data, create a
+      // 'fake' promise and return it
+      var deferred = $q.defer();
+      deferred.resolve(data);
+      return deferred.promise;
+    }
+  }
 
   // Factory
 
@@ -137,20 +153,21 @@ angular.module('nourish.services', [])
     });
   };
 
-  factory.today = function() {
-    //var today = moment().startOf('day');
-    var today = moment('2015-07-08').startOf('day');
-
-    return this.day(today);
-  };
-
-  factory.day = function(date) {
+  /**
+   * Gets halls/meals/items for given date
+   * @param  {String|Moment} date ISO string or Moment; can have any H:M:S
+   * @return {Promise}            Promise w/ halls
+   */
+  factory.date = function(date) {
     return setup().then(function(data) {
       var halls = [];
 
-      var day = moment(date).startOf('day');
+      // Make sure we're working with the start of the day
+      date = moment(date).startOf('day');
 
+      // Loop halls from all data
       data.all.forEach(function(hall) {
+        // Copy hall; set empty meals array
         var newHall = {
           __v: hall.__v,
           _id: hall._id,
@@ -158,12 +175,15 @@ angular.module('nourish.services', [])
           meals: []
         };
 
+        // Loop meals in hall
         hall.meals.forEach(function(meal) {
-          if (moment(meal.date).startOf('day').isSame(day)) {
+          // If meal is on given date, add to newHall
+          if (moment(meal.date).startOf('day').isSame(date)) {
             newHall.meals.push(meal);
           }
         });
 
+        // Only add hall to result if it had meals on given date
         if (newHall.meals.length) {
           halls.push(newHall);
         }
@@ -173,19 +193,30 @@ angular.module('nourish.services', [])
     });
   };
 
-  factory.daysList = function() {
+  /**
+   * Gets halls/meals/items for today
+   * @return {Promise} Promise w/ halls
+   */
+  factory.today = function() {
+    // TODO var today = moment().startOf('day');
+    var today = moment('2015-07-08').startOf('day');
+
+    return this.date(today);
+  };
+
+  factory.datesList = function() {
     return setup().then(function(data) {
-      var days = [];
+      var dates = [];
       data.all.forEach(function(hall) {
         hall.meals.forEach(function(meal) {
           var mom = moment(meal.date).startOf('day').toString();
-          if (days.indexOf(mom) === -1) {
-            days.push(mom);
+          if (dates.indexOf(mom) === -1) {
+            dates.push(mom);
           }
         });
       });
 
-      return days;
+      return dates;
     });
   };
 

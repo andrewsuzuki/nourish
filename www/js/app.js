@@ -1,12 +1,13 @@
-// Ionic Starter App
+/**
+ * Nourish Mobile App
+ */
 
-// angular.module is a global place for creating, registering and retrieving Angular modules
-// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
-// the 2nd parameter is an array of 'requires'
-// 'starter.services' is found in services.js
-// 'starter.controllers' is found in controllers.js
+// Register nourish as Angular module
 angular.module('nourish', ['ionic', 'nourish.controllers', 'nourish.services'])
 
+/**
+ * App settings and constants
+ */
 .constant('AppSettings', {
   apiUrl: 'http://localhost:8080/api', // TODO
   halls: [
@@ -19,16 +20,6 @@ angular.module('nourish', ['ionic', 'nourish.controllers', 'nourish.services'])
     { slug: 'south', name: 'South' },
     { slug: 'towers', name: 'Gelfenbein Commons (Towers)' },
   ],
-  hallNameBySlug: function(slug) {
-    var answer;
-    this.halls.some(function(hall) {
-      if (slug === hall.slug) {
-        answer = hall.name;
-        return true;
-      }
-    });
-    return answer;
-  },
   mealTypes: [
     'Breakfast', // 0
     'Lunch', // 1
@@ -37,8 +28,17 @@ angular.module('nourish', ['ionic', 'nourish.controllers', 'nourish.services'])
   ]
 })
 
-.factory('Helpers', function() {
+/**
+ * Misc injectable helper functions
+ */
+.factory('Helpers', function(AppSettings) {
   return {
+    /**
+     * Take a date and format it
+     * Turns today's/tomorrow's date into 'Today' and 'Tomorrow'
+     * @param date    ISO/Moment date
+     * @param format  'long'|'short'|Moment date format
+     */
     displayDate: function(date, format) {
       if (format === 'long') {
         format = 'dddd MMMM Do YYYY';
@@ -46,7 +46,7 @@ angular.module('nourish', ['ionic', 'nourish.controllers', 'nourish.services'])
         format = 'ddd M/D'; // Sun 3/13
       }
 
-      var mom = moment(date);
+      var mom = moment(date).startOf('day');
       var today = moment().startOf('day');
       if (mom.isSame(today)) {
         return 'Today';
@@ -55,10 +55,59 @@ angular.module('nourish', ['ionic', 'nourish.controllers', 'nourish.services'])
       } else {
         return mom.format(format);
       }
+    },
+
+    /**
+     * Convert meal type (0-3) to string
+     * @param  {number} mealType 0-3 (see AppSettings)
+     * @return {string} 'Breakfast', 'Lunch', etc
+     */
+    mealTypeToString: function(mealType) {
+      return AppSettings.mealTypes[mealType];
+    },
+
+    /**
+     * Takes an array of items and organizes them by category
+     * @param  {array} items list of item objects
+     * @return {array}       list of categories with items
+     */
+    organizeItemsIntoCategories: function(items) {
+      var cats = [];
+
+      // Loop items
+      items.forEach(function(item) {
+        var catFound = false;
+
+        // Loop existing categories
+        cats.some(function(cat) {
+          // If this item's category already exists,
+          // mark flag and add item to category
+          if (cat.name === item.cat) {
+            catFound = true;
+
+            cat.items.push(item);
+
+            // Break
+            return true;
+          }
+        });
+
+        if (!catFound) {
+          // Category doesn't exist yet
+          // Create it with item
+          cats.push({
+            name: item.cat,
+            items: [ item ]
+          });
+        }
+      });
+
+      return cats;
     }
   };
 })
 
+// Configure Cordova
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -73,22 +122,21 @@ angular.module('nourish', ['ionic', 'nourish.controllers', 'nourish.services'])
   });
 })
 
+/**
+ * Register states/routes
+ */
 .config(function($stateProvider, $urlRouterProvider) {
 
-  // Ionic uses AngularUI Router which uses the concept of states
-  // Learn more here: https://github.com/angular-ui/ui-router
-  // Set up the various states which the app can be in.
-  // Each state's controller can be found in controllers.js
   $stateProvider
 
-  // setup an abstract state for the tabs directive
-    .state('tab', {
-    url: "/tab",
+  // Setup an abstract state for the tabs directive
+  .state('tab', {
+    url: '/tab',
     abstract: true,
-    templateUrl: "templates/tabs.html"
+    templateUrl: 'templates/tabs.html'
   })
 
-  // Each tab has its own nav history stack:
+  // Each tab has its own nav history stack
 
   .state('tab.menu', {
     url: '/menu',
@@ -189,7 +237,7 @@ angular.module('nourish', ['ionic', 'nourish.controllers', 'nourish.services'])
     }
   });
 
-  // if none of the above states are matched, use this as the fallback
+  // If none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/tab/menu');
 
 });

@@ -2,7 +2,13 @@
   <ion-content class="padding">
     <ion-spinner ng-if="!loaded"></ion-spinner>
     <div class="button-bar padding-bottom">
-      <a ng-repeat="meal in meals" ng-click="showMeal(meal.type)" class="button" ng-class="{ active: meal.type === currentMeal }">{{ meal.type }}</a>
+      <a
+        ng-repeat="meal in meals"
+        ng-click="showMeal(meal.type)"
+        ng-class="{ active: meal.type === currentMeal }"
+        class="button">
+        {{ meal.type }}
+      </a>
     </div>
 
     <div ng-repeat="meal in meals" ng-if="meal.type === currentMeal" class="list">

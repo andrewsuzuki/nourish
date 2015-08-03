@@ -1,53 +1,64 @@
+// Register nourish.controllers as Angular module
 angular.module('nourish.controllers', [])
 
 // Home Menu Controller, just supplies a short menu
-// leads to Today, Upcoming, or Wings Finder
-.controller('MenuCtrl', function($scope) {
-})
+// that leads to Today, Upcoming, or Wings Finder
+.controller('MenuCtrl', function($scope) {})
 
-// Today Menu Controller, shows list of halls
+// Today Menu Controller, shows list of halls for today
 .controller('MenuTodayCtrl', function($scope, AppSettings) {
   $scope.halls = AppSettings.halls;
 })
 
-// Today Hall Controller, shows meals/items in hall today
-.controller('MenuTodayHallCtrl', function($scope, $stateParams, $ionicModal, ItemService, AppSettings) {
-  var hallDayPromise = ItemService.today();
-  HallShare($scope, $stateParams, $ionicModal, AppSettings, hallDayPromise);
+// Today Hall Controller, shows meals/items in given hall for today
+.controller('MenuTodayHallCtrl', function($scope, $stateParams, $ionicModal, ItemService, AppSettings, Helpers) {
+  var hallDatePromise = ItemService.today();
+  HallShare($scope, $stateParams, $ionicModal, AppSettings, Helpers, hallDatePromise);
 })
 
 // Upcoming Menu Controller, shows list of dates in the future
 .controller('MenuUpcomingCtrl', function($scope, ItemService, Helpers) {
+  // Reference to displayDate helper
   $scope.displayDate = Helpers.displayDate;
 
-  ItemService.daysList().then(function(days) {
-    $scope.dates = days;
+  // Get list of dates
+  ItemService.datesList().then(function(dates) {
+    // Set into scope
+    $scope.dates = dates;
   });
 })
 
 // Upcoming Date Controller, shows list of halls for given date
 .controller('MenuUpcomingDateCtrl', function($scope, $stateParams, ItemService, Helpers) {
+  // Reference to displayDate helper
   $scope.displayDate = Helpers.displayDate;
+
+  // Make date param available in scope
   $scope.date = $stateParams.date;
-  ItemService.day($scope.date).then(function(halls) {
+
+  // Get all data for given date
+  ItemService.date($scope.date).then(function(halls) {
     $scope.halls = halls;
-    console.log(halls);
   });
 })
 
-// Upcoming Date Hall Controller, shows meals/items in hall for given date
-.controller('MenuUpcomingDateHallCtrl', function($scope, $stateParams, $ionicModal, ItemService, AppSettings) {
+// Upcoming Date Hall Controller, shows meals/items in given hall for given date
+.controller('MenuUpcomingDateHallCtrl', function($scope, $stateParams, $ionicModal, ItemService, AppSettings, Helpers) {
+  // Convert given date into Moment
   var mom = moment($stateParams.date);
-  var hallDayPromise = ItemService.day(mom);
-  HallShare($scope, $stateParams, $ionicModal, AppSettings, hallDayPromise);
+
+  // Get halls/meals/items for this date
+  var hallDatePromise = ItemService.date(mom);
+
+  HallShare($scope, $stateParams, $ionicModal, AppSettings, Helpers, hallDatePromise);
 })
 
 // Wings Finder Menu Controller, shows all wings in all halls for all
-// future dates on a single view
+// future dates within a single view
 .controller('MenuWingsCtrl', function($scope) {
 })
 
-// Chats controller, shows list of halls
+// Chats controller, shows list of halls (effective chat rooms)
 .controller('ChatsCtrl', function($scope, Chats) {
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -68,94 +79,76 @@ angular.module('nourish.controllers', [])
   $scope.chat = Chats.get($stateParams.chatId);
 })
 
-// Settings controller, show
+// Settings controller
 .controller('SettingsCtrl', function($scope) {
   $scope.settings = {
     enableFriends: true
   };
 });
 
-// HallShare is used by both MenuTodayHallCtrl and MenuUpcomingDateHallCtrl
-// to show the meals/items for a hall on one date
-function HallShare($scope, $stateParams, $ionicModal, AppSettings, hallDayPromise) {
+// Show meals/items for a hall on a date
+// Used by both MenuTodayHallCtrl and MenuUpcomingDateHallCtrl
+function HallShare($scope, $stateParams, $ionicModal, AppSettings, Helpers, hallDatePromise) {
+  // Loaded flag
   $scope.loaded = false;
 
   // TODO: change initial value depending on time of day
   $scope.currentMeal = 'Breakfast';
 
-  hallDayPromise.then(function(halls) {
+  // Tack on to the hallDatePromise and recieve its halls
+  hallDatePromise.then(function(halls) {
+    // Loop halls
     halls.some(function(hall) {
+      // Check if we have the right hall (by name)
       if ($stateParams.hallName === hall.name) {
+        // Set given hall into scope
         $scope.hall = hall;
 
+        // Loop meals in hall
         hall.meals.forEach(function(meal) {
-          meal.cats = $scope.organizeItemsIntoCats(meal.items);
+          // Organize items into categories
+          meal.cats = Helpers.organizeItemsIntoCategories(meal.items);
         });
 
+        // Sort meals
+        // TODO fix this since now .type is a string
         hall.meals.sort(function(a, b) {
           return a.type > b.type;
         });
 
+        // Set meals into scope
         $scope.meals = hall.meals;
 
-        // Break
+        // Break; we found our target hall
         return true;
       }
     });
 
-    //$scope.halls = halls;
+    // Set loaded flag
     $scope.loaded = true;
   });
 
-  $scope.organizeItemsIntoCats = function(items) {
-    var cats = [];
-
-    items.forEach(function(item) {
-      var catFound = false;
-
-      cats.some(function(cat) {
-        if (cat.name === item.cat) {
-          catFound = true;
-
-          cat.items.push(item);
-
-          // Break
-          return true;
-        }
-      });
-
-      if (!catFound) {
-        cats.push({
-          name: item.cat,
-          items: [ item ]
-        });
-      }
-    });
-
-    return cats;
-  };
-
-  $scope.findItem = function(itemId) {
-    var found = false;
-
-    $scope.meals.some(function(meal) {
-      meal.items.some(function(item) {
-        if (item._id === itemId) {
-          found = item;
-
-          // Break
-          return true;
-        }
-      });
-
-      if (found) {
-        // Break
-        return true;
-      }
-    });
-
-    return found;
-  };
+  // $scope.findItem = function(itemId) {
+  //   var found = false;
+  //
+  //   $scope.meals.some(function(meal) {
+  //     meal.items.some(function(item) {
+  //       if (item._id === itemId) {
+  //         found = item;
+  //
+  //         // Break
+  //         return true;
+  //       }
+  //     });
+  //
+  //     if (found) {
+  //       // Break
+  //       return true;
+  //     }
+  //   });
+  //
+  //   return found;
+  // };
 
   $scope.showMeal = function(mealType) {
     $scope.currentMeal = mealType;
@@ -163,32 +156,25 @@ function HallShare($scope, $stateParams, $ionicModal, AppSettings, hallDayPromis
 
   /* POPOVER */
 
-  // .fromTemplateUrl() method
   $ionicModal.fromTemplateUrl('templates/tab-menu-item.html', {
-    scope: $scope,
-    animation: 'slide-in-up'
+    scope: $scope, // set scope to this scope
+    animation: 'slide-in-up' // the only option for now
   }).then(function(modal) {
-    $scope.modal = modal;
+    $scope.modal = modal; // set modal into scope
   });
 
   $scope.openItem = function($event, item) {
-    $scope.modalItem = item;
-    $scope.modal.show($event);
+    $scope.modalItem = item; // set item to be modal'd into scope
+    $scope.modal.show($event); // show modal
   };
   $scope.closeItem = function() {
-    $scope.modal.hide();
+    $scope.modal.remove(); // remove modal
+    // In the future, might want to use hide method instead
   };
-  //Cleanup the popover when we're done with it!
+
+  // Remove the popover when we're done with it
   $scope.$on('$destroy', function() {
     $scope.modal.remove();
-  });
-  // Execute action on hide popover
-  $scope.$on('modal.hidden', function() {
-    // Execute action
-  });
-  // Execute action on remove popover
-  $scope.$on('modal.removed', function() {
-    // Execute action
   });
 
   /* END POPOVER */
