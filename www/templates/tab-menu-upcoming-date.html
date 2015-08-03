@@ -1,4 +1,4 @@
-<ion-view view-title="{{ date }}">
+<ion-view view-title="{{ displayDate(date, 'long') }}">
   <ion-content class="padding">
     <div class="list card">
       <a ng-repeat="hall in halls" href="#/tab/menu/upcoming/date/{{ date }}/hall/{{hall.name}}" class="item">

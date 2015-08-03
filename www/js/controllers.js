@@ -1,31 +1,33 @@
 angular.module('nourish.controllers', [])
 
+// Home Menu Controller, just supplies a short menu
+// leads to Today, Upcoming, or Wings Finder
 .controller('MenuCtrl', function($scope) {
 })
 
+// Today Menu Controller, shows list of halls
 .controller('MenuTodayCtrl', function($scope, AppSettings) {
   $scope.halls = AppSettings.halls;
 })
 
+// Today Hall Controller, shows meals/items in hall today
 .controller('MenuTodayHallCtrl', function($scope, $stateParams, $ionicModal, ItemService, AppSettings) {
   var hallDayPromise = ItemService.today();
   HallShare($scope, $stateParams, $ionicModal, AppSettings, hallDayPromise);
 })
 
-.controller('MenuUpcomingCtrl', function($scope, ItemService) {
-  //List dates
-  $scope.displayDate = function(date) {
-    // TODO: add replacements for "today", "tomorrow", etc
-    return moment(date).toString();
-  };
+// Upcoming Menu Controller, shows list of dates in the future
+.controller('MenuUpcomingCtrl', function($scope, ItemService, Helpers) {
+  $scope.displayDate = Helpers.displayDate;
 
   ItemService.daysList().then(function(days) {
     $scope.dates = days;
   });
 })
 
-.controller('MenuUpcomingDateCtrl', function($scope, $stateParams, ItemService) {
-  // List halls in day
+// Upcoming Date Controller, shows list of halls for given date
+.controller('MenuUpcomingDateCtrl', function($scope, $stateParams, ItemService, Helpers) {
+  $scope.displayDate = Helpers.displayDate;
   $scope.date = $stateParams.date;
   ItemService.day($scope.date).then(function(halls) {
     $scope.halls = halls;
@@ -33,17 +35,19 @@ angular.module('nourish.controllers', [])
   });
 })
 
+// Upcoming Date Hall Controller, shows meals/items in hall for given date
 .controller('MenuUpcomingDateHallCtrl', function($scope, $stateParams, $ionicModal, ItemService, AppSettings) {
-  // Display meals in hall for given day
   var mom = moment($stateParams.date);
   var hallDayPromise = ItemService.day(mom);
   HallShare($scope, $stateParams, $ionicModal, AppSettings, hallDayPromise);
 })
 
+// Wings Finder Menu Controller, shows all wings in all halls for all
+// future dates on a single view
 .controller('MenuWingsCtrl', function($scope) {
-  //Wings
 })
 
+// Chats controller, shows list of halls
 .controller('ChatsCtrl', function($scope, Chats) {
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -52,28 +56,31 @@ angular.module('nourish.controllers', [])
   //
   //$scope.$on('$ionicView.enter', function(e) {
   //});
-  
+
   $scope.chats = Chats.all();
   $scope.remove = function(chat) {
     Chats.remove(chat);
   }
 })
 
+// Chat Detail Controller, show single chat with other person
 .controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
   $scope.chat = Chats.get($stateParams.chatId);
 })
 
+// Settings controller, show
 .controller('SettingsCtrl', function($scope) {
   $scope.settings = {
     enableFriends: true
   };
 });
 
+// HallShare is used by both MenuTodayHallCtrl and MenuUpcomingDateHallCtrl
+// to show the meals/items for a hall on one date
 function HallShare($scope, $stateParams, $ionicModal, AppSettings, hallDayPromise) {
   $scope.loaded = false;
 
-  // TODO: change initial value depending on
-  // time of day
+  // TODO: change initial value depending on time of day
   $scope.currentMeal = 'Breakfast';
 
   hallDayPromise.then(function(halls) {

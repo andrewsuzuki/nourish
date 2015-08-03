@@ -37,6 +37,28 @@ angular.module('nourish', ['ionic', 'nourish.controllers', 'nourish.services'])
   ]
 })
 
+.factory('Helpers', function() {
+  return {
+    displayDate: function(date, format) {
+      if (format === 'long') {
+        format = 'dddd MMMM Do YYYY';
+      } else if (typeof format === 'undefined' || format === 'short') {
+        format = 'ddd M/D'; // Sun 3/13
+      }
+
+      var mom = moment(date);
+      var today = moment().startOf('day');
+      if (mom.isSame(today)) {
+        return 'Today';
+      } else if (mom.isSame(today.add(1, 'days'))) {
+        return 'Tomorrow';
+      } else {
+        return mom.format(format);
+      }
+    }
+  };
+})
+
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
