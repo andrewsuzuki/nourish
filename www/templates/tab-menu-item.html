@@ -1,0 +1,81 @@
+<ion-modal-view>
+  <ion-header-bar class="bar bar-header bar-positive">
+  <h1 class="title">{{ modalItem.name }}</h1>
+    <button class="button button-clear button-primary" ng-click="modal.hide()">Close</button>
+  </ion-header-bar>
+  <ion-content class="padding">
+    <div class="card">
+      <div class="item item-divider">
+        General
+      </div>
+      <div class="item item-text-wrap">
+        <ul>
+          <li>Serving Size: {{ modalItem.label.nutrition.serving_size }}</li>
+          <li>Calories: {{ modalItem.label.nutrition.calories }}</li>
+          <li>Calories from Fat: {{ modalItem.label.nutrition.calories_from_fat }}</li>
+          <li>Vitamin A <span class="calm">{{ modalItem.label.vitamins.a }}%</span></li>
+          <li>Vitamin C <span class="calm">{{ modalItem.label.vitamins.c }}%</span></li>
+          <li>Calcium <span class="calm">{{ modalItem.label.vitamins.calc }}%</span></li>
+          <li>Iron <span class="calm">{{ modalItem.label.vitamins.iron }}%</span></li>
+          <li><strong>Allergens:</strong> {{ modalItem.label.allergens }}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="item item-divider">
+        Composition
+      </div>
+      <div class="item item-text-wrap">
+        <ul>
+          <li>
+            Total Fat
+            <span class="royal">{{ modalItem.label.composition.total_fat.amount }}</span>
+            <span class="calm">{{ modalItem.label.composition.total_fat.pdv }}%</span>
+            <ul>
+              <li>
+                Sat. Fat
+                <span class="royal">{{ modalItem.label.composition.sat_fat.amount }}</span>
+                <span class="calm">{{ modalItem.label.composition.sat_fat.pdv }}%</span>
+              </li>
+              <li>
+                Trans Fat
+                <span class="royal">{{ modalItem.label.composition.trans_fat.amount }}</span>
+              </li>
+            </ul>
+          </li>
+          <li>
+            Cholesterol
+            <span class="royal">{{ modalItem.label.composition.cholesterol.amount }}</span>
+            <span class="calm">{{ modalItem.label.composition.cholesterol.pdv }}%</span>
+          </li>
+          <li>
+            Sodium
+            <span class="royal">{{ modalItem.label.composition.sodium.amount }}</span>
+            <span class="calm">{{ modalItem.label.composition.sodium.pdv }}%</span>
+          </li>
+          <li>
+            Total Carb
+            <span class="royal">{{ modalItem.label.composition.total_carb.amount }}</span>
+            <span class="calm">{{ modalItem.label.composition.total_carb.pdv }}%</span>
+            <ul>
+              <li>
+                Dietary Fiber
+                <span class="royal">{{ modalItem.label.composition.dietary_fiber.amount }}</span>
+                <span class="calm">{{ modalItem.label.composition.dietary_fiber.pdv }}%</span>
+              </li>
+              <li>
+                Sugars
+                <span class="royal">{{ modalItem.label.composition.sugars.amount }}</span>
+              </li>
+            </ul>
+          </li>
+          <li>
+            Protein
+            <span class="royal">{{ modalItem.label.composition.protein.amount }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <button class="button button-positive" ng-click="modal.hide()">Close</button>
+  </ion-content>
+</ion-modal-view>

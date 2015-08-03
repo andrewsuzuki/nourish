@@ -1,0 +1,19 @@
+<ion-view view-title="{{ hall.name }}">
+  <ion-content class="padding">
+    <ion-spinner ng-if="!loaded"></ion-spinner>
+    <div class="button-bar padding-bottom">
+      <a ng-repeat="meal in meals" ng-click="showMeal(meal.type)" class="button" ng-class="{ active: meal.type === currentMeal }">{{ meal.type }}</a>
+    </div>
+
+    <div ng-repeat="meal in meals" ng-if="meal.type === currentMeal" class="list">
+      <div ng-repeat="cat in meal.cats">
+        <div class="item item-divider">
+          {{ cat.name }}
+        </div>
+        <a ng-repeat="item in cat.items" ng-click="openItem($event, item)" class="item">
+          {{ item.name }}
+        </a>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

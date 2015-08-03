@@ -5,7 +5,37 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
+angular.module('nourish', ['ionic', 'nourish.controllers', 'nourish.services'])
+
+.constant('AppSettings', {
+  apiUrl: 'http://localhost:8080/api', // TODO
+  halls: [
+    { slug: 'whitney', name: 'Whitney' },
+    { slug: 'buckley', name: 'Buckley' },
+    { slug: 'mcmahon', name: 'McMahon' },
+    { slug: 'putnam', name: 'Putnam' },
+    { slug: 'north', name: 'North' },
+    { slug: 'northwest', name: 'Northwest' },
+    { slug: 'south', name: 'South' },
+    { slug: 'towers', name: 'Gelfenbein Commons (Towers)' },
+  ],
+  hallNameBySlug: function(slug) {
+    var answer;
+    this.halls.some(function(hall) {
+      if (slug === hall.slug) {
+        answer = hall.name;
+        return true;
+      }
+    });
+    return answer;
+  },
+  mealTypes: [
+    'Breakfast', // 0
+    'Lunch', // 1
+    'Dinner', // 2
+    'Brunch' // 3
+  ]
+})
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -38,12 +68,72 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
 
   // Each tab has its own nav history stack:
 
-  .state('tab.dash', {
-    url: '/dash',
+  .state('tab.menu', {
+    url: '/menu',
     views: {
-      'tab-dash': {
-        templateUrl: 'templates/tab-dash.html',
-        controller: 'DashCtrl'
+      'tab-menu': {
+        templateUrl: 'templates/tab-menu.html',
+        controller: 'MenuCtrl'
+      }
+    }
+  })
+
+  .state('tab.menu-today', {
+    url: '/menu/today',
+    views: {
+      'tab-menu': {
+        templateUrl: 'templates/tab-menu-today.html',
+        controller: 'MenuTodayCtrl'
+      }
+    }
+  })
+
+  .state('tab.menu-today-hall', {
+    url: '/menu/today/hall/:hallName',
+    views: {
+      'tab-menu': {
+        templateUrl: 'templates/tab-menu-hall.html',
+        controller: 'MenuTodayHallCtrl'
+      }
+    }
+  })
+
+  .state('tab.menu-upcoming', {
+    url: '/menu/upcoming',
+    views: {
+      'tab-menu': {
+        templateUrl: 'templates/tab-menu-upcoming.html',
+        controller: 'MenuUpcomingCtrl'
+      }
+    }
+  })
+
+  .state('tab.menu-upcoming-date', {
+    url: '/menu/upcoming/date/:date',
+    views: {
+      'tab-menu': {
+        templateUrl: 'templates/tab-menu-upcoming-date.html',
+        controller: 'MenuUpcomingDateCtrl'
+      }
+    }
+  })
+
+  .state('tab.menu-upcoming-date-hall', {
+    url: '/menu/upcoming/date/:date/hall/:hallName',
+    views: {
+      'tab-menu': {
+        templateUrl: 'templates/tab-menu-hall.html',
+        controller: 'MenuUpcomingDateHallCtrl'
+      }
+    }
+  })
+
+  .state('tab.menu-wings', {
+    url: '/menu/wings',
+    views: {
+      'tab-menu': {
+        templateUrl: 'templates/tab-menu-wings.html',
+        controller: 'MenuWingsCtrl'
       }
     }
   })
@@ -67,17 +157,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
       }
     })
 
-  .state('tab.account', {
-    url: '/account',
+  .state('tab.settings', {
+    url: '/settings',
     views: {
-      'tab-account': {
-        templateUrl: 'templates/tab-account.html',
-        controller: 'AccountCtrl'
+      'tab-settings': {
+        templateUrl: 'templates/tab-settings.html',
+        controller: 'SettingsCtrl'
       }
     }
   });
 
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/tab/dash');
+  $urlRouterProvider.otherwise('/tab/menu');
 
 });

@@ -1,0 +1,9 @@
+<ion-view view-title="Upcoming">
+  <ion-content class="padding">
+    <div class="list card">
+      <a ng-repeat="date in dates" href="#/tab/menu/upcoming/date/{{ date }}" class="item">
+        {{ displayDate(date) }}
+      </a>
+    </div>
+  </ion-content>
+</ion-view>
