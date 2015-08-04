@@ -117,9 +117,26 @@ function HallShare($scope, $stateParams, $ionicModal, AppSettings, Helpers, hall
   // Meals list
   $scope.meals = [];
 
-  // The current meal
-  // TODO: change initial value depending on time of day
-  $scope.currentMeal = 'Breakfast';
+  // Set the currently selected meal depending on time
+  var now = moment();
+  if (now.day() === 0 || now.day() === 6) {
+    // It's Saturday or Sunday, so assume Brunch/Dinner
+    if (now.hour() > 4) {
+      $scope.currentMeal = AppSettings.mealTypes[2]; // Dinner
+    } else {
+      $scope.currentMeal = AppSettings.mealTypes[3]; // Brunch
+    }
+  } else {
+    // It's not Saturday or Sunday,
+    // so assume Breakfast/Lunch/Dinner
+    if (now.hour() > 4) {
+      $scope.currentMeal = AppSettings.mealTypes[2]; // Dinner
+    } else if (now.hour() > 11) {
+      $scope.currentMeal  = AppSettings.mealTypes[1]; // Lunch
+    } else {
+      $scope.currentMeal = AppSettings.mealTypes[0]; // Breakfast
+    }
+  }
 
   // Tack on to the hallDatePromise and recieve its halls
   hallDatePromise.then(function(halls) {
