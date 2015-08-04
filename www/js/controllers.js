@@ -153,10 +153,15 @@ function HallShare($scope, $stateParams, $ionicModal, AppSettings, Helpers, hall
           meal.cats = Helpers.organizeItemsIntoCategories(meal.items);
         });
 
-        // Sort meals
-        // TODO fix this since now .type is a string
+        // Sort meals (Brunch < Breakfast < Lunch < Dinner)
         hall.meals.sort(function(a, b) {
-          return a.type > b.type;
+          // If it's brunch, then it goes first
+          if (a.type === AppSettings.mealTypes[3]) {
+            return false;
+          }
+          // Otherwise, sort by index in AppSettings
+          return AppSettings.mealTypes.indexOf(a.type) >
+                  AppSettings.mealTypes.indexOf(b.type);
         });
 
         // Set meals into scope
@@ -197,8 +202,9 @@ function HallShare($scope, $stateParams, $ionicModal, AppSettings, Helpers, hall
     $scope.currentMeal = mealType;
   };
 
-  /* POPOVER */
+  /* ITEM MODAL */
 
+  // Grab modal template, share scope
   $ionicModal.fromTemplateUrl('templates/tab-menu-item.html', {
     scope: $scope, // set scope to this scope
     animation: 'slide-in-up' // the only option for now
@@ -206,13 +212,14 @@ function HallShare($scope, $stateParams, $ionicModal, AppSettings, Helpers, hall
     $scope.modal = modal; // set modal into scope
   });
 
+  // Open given item in modal
   $scope.openItem = function($event, item) {
     $scope.modalItem = item; // set item to be modal'd into scope
     $scope.modal.show($event); // show modal
   };
+  // Close item modal
   $scope.closeItem = function() {
-    $scope.modal.remove(); // remove modal
-    // In the future, might want to use hide method instead
+    $scope.modal.hide(); // hide modal
   };
 
   // Remove the popover when we're done with it
@@ -220,5 +227,5 @@ function HallShare($scope, $stateParams, $ionicModal, AppSettings, Helpers, hall
     $scope.modal.remove();
   });
 
-  /* END POPOVER */
+  /* END ITEM MODAL */
 }
