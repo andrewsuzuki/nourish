@@ -3,12 +3,18 @@
  */
 
 // Register nourish as Angular module
-angular.module('nourish', ['ionic', 'nourish.controllers', 'nourish.services'])
+angular.module('nourish', [
+  'ionic',
+  'btford.socket-io',
+  'nourish.controllers',
+  'nourish.services'
+])
 
 /**
  * App settings and constants
  */
 .constant('AppSettings', {
+  chatUrl: 'http://localhost:8080', // TODO
   apiUrl: 'http://localhost:8080/api', // TODO
   halls: [
     { slug: 'whitney', name: 'Whitney' },

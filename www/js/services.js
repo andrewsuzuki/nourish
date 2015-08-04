@@ -1,5 +1,12 @@
 angular.module('nourish.services', [])
 
+// Chat socket factory
+.factory('ChatSocket', function(socketFactory, AppSettings) {
+  return socketFactory({
+    ioSocket: io(AppSettings.chatUrl)
+  });
+})
+
 .factory('Chats', function() {
   // Might use a resource here that returns a JSON array
 
