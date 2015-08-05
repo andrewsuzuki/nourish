@@ -223,6 +223,15 @@ angular.module('nourish', [
         }
       }
     })
+    .state('tab.chat-hall', {
+        url: '/chats/hall/:hallName',
+        views: {
+          'tab-chats': {
+            templateUrl: 'templates/chat-hall.html',
+            controller: 'ChatHallCtrl'
+          }
+        }
+      })
     .state('tab.chat-detail', {
       url: '/chats/:chatId',
       views: {

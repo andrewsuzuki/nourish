@@ -81,7 +81,8 @@ angular.module('nourish.controllers', [])
 })
 
 // Chats controller, shows list of halls (effective chat rooms)
-.controller('ChatsCtrl', function($scope, ChatSocket, Chats) {
+// as well as toggle for offer-making
+.controller('ChatsCtrl', function($scope, $ionicModal, Chats, AppSettings) {
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
   // To listen for when this page is active (for example, to refresh data),
@@ -90,10 +91,65 @@ angular.module('nourish.controllers', [])
   //$scope.$on('$ionicView.enter', function(e) {
   //});
 
-  $scope.chats = Chats.all();
-  $scope.remove = function(chat) {
-    Chats.remove(chat);
-  }
+  // The flexer's hall
+  $scope.hallChoice = undefined;
+
+  // List of halls with offers count
+  $scope.halls = [];
+
+  // Loop halls in settings
+  AppSettings.halls.forEach(function(hall) {
+    // Add hall to $scope.halls
+    $scope.halls.push({
+      name: hall.name,
+      offers: 0
+    });
+  });
+
+  // Set up offer-making modal
+  $ionicModal.fromTemplateUrl('make-offer.html', {
+    scope: $scope,
+    animation: 'slide-in-up' // The only option? :(
+  }).then(function(modal) {
+    // Set modal into scope
+    $scope.modal = modal;
+  });
+
+  // Open offer modal
+  $scope.openOfferModal = function() {
+    // Clear choice
+    $scope.modal.hallChoice = undefined;
+    $scope.hallChoice = undefined;
+    // TODO reset more things
+    $scope.modal.show();
+  };
+
+  // Save offer modal
+  $scope.saveOfferModal = function() {
+    // Set hallChoice to selected hall in modal.hallChoice
+    $scope.hallChoice = $scope.modal.hallChoice;
+    $scope.modal.hide();
+  };
+
+  // Cancel offer modal
+  $scope.cancelOfferModal = function() {
+    $scope.modal.hide();
+  };
+
+  // Execute action on hide modal
+  $scope.$on('modal.hidden', function() {
+  });
+
+  // Cleanup the modal when we're done with it!
+  $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+  });
+
+})
+
+// Chat hall controller, list people with offers in hall
+.controller('ChatHallCtrl', function($scope, ChatSocket, Chats) {
+
 })
 
 // Chat Detail Controller, show single chat with other person
@@ -104,7 +160,7 @@ angular.module('nourish.controllers', [])
 // Settings controller
 .controller('SettingsCtrl', function($scope) {
   $scope.settings = {
-    enableFriends: true
+    screenName: undefined,
   };
 });
 
