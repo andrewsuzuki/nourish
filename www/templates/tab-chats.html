@@ -11,7 +11,7 @@
         Flexees will show up in the below card. Please press
         <span class="energized">Leave</span> when leaving {{ hallChoice }}.
         <div class="padding-top">
-          <button class="button button-energized">
+          <button ng-click="leaveOffer()" class="button button-energized">
             Leave
           </button>
         </div>
@@ -30,8 +30,10 @@
         ng-repeat="hall in halls"
         href="#/tab/chats/hall/{{hall.name}}">
         {{ hall.name }}
-        &mdash;
-        <span class="calm">{{ hall.offers }} offers</span>
+        <span ng-if="hall.offers > 0">
+          &mdash;
+          <span class="calm">{{ hall.offers }} offers</span>
+        </span>
       </ion-item>
     </ion-list>
   </ion-content>

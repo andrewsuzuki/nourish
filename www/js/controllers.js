@@ -82,7 +82,7 @@ angular.module('nourish.controllers', [])
 
 // Chats controller, shows list of halls (effective chat rooms)
 // as well as toggle for offer-making
-.controller('ChatsCtrl', function($scope, $ionicModal, Chats, AppSettings) {
+.controller('ChatsCtrl', function($scope, $ionicModal, ChatSocket, AppSettings) {
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
   // To listen for when this page is active (for example, to refresh data),
@@ -91,8 +91,11 @@ angular.module('nourish.controllers', [])
   //$scope.$on('$ionicView.enter', function(e) {
   //});
 
-  // The flexer's hall
+  // The flexer's current hall
   $scope.hallChoice = undefined;
+
+  // Set up watch on $scope.hallChoice
+  $scope.$watch('hallChoice', updateOffer);
 
   // List of halls with offers count
   $scope.halls = [];
@@ -105,6 +108,23 @@ angular.module('nourish.controllers', [])
       offers: 0
     });
   });
+
+  // Listen for offer count updates
+  ChatSocket.on('offer update', function(offers) {
+    // Loop our halls
+    $scope.halls.forEach(function(hall) {
+      // If the retrieved offers includes one of our halls...
+      if (offers.hasOwnProperty(hall.name)) {
+        // Update our hall's offers
+        hall.offers = parseInt(offers[hall.name]);
+      } else {
+        // Set to zero
+        hall.offers = 0;
+      }
+    });
+  });
+
+  $scope.leaveOffer = leaveOffer;
 
   // Set up offer-making modal
   $ionicModal.fromTemplateUrl('make-offer.html', {
@@ -128,11 +148,13 @@ angular.module('nourish.controllers', [])
   $scope.saveOfferModal = function() {
     // Set hallChoice to selected hall in modal.hallChoice
     $scope.hallChoice = $scope.modal.hallChoice;
+    // Hide modal
     $scope.modal.hide();
   };
 
   // Cancel offer modal
   $scope.cancelOfferModal = function() {
+    // Hide modal
     $scope.modal.hide();
   };
 
@@ -145,16 +167,33 @@ angular.module('nourish.controllers', [])
     $scope.modal.remove();
   });
 
+  /**
+   * Sync our offer status with the server
+   */
+  function updateOffer() {
+    if (!$scope.hallChoice) {
+      ChatSocket.emit('offer leave');
+    } else {
+      ChatSocket.emit('offer new', $scope.hallChoice);
+    }
+  }
+
+  /**
+   * Leave offer and sync
+   */
+  function leaveOffer() {
+    $scope.hallChoice = undefined;
+  }
+
 })
 
 // Chat hall controller, list people with offers in hall
-.controller('ChatHallCtrl', function($scope, ChatSocket, Chats) {
+.controller('ChatHallCtrl', function($scope, ChatSocket) {
 
 })
 
 // Chat Detail Controller, show single chat with other person
-.controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
-  $scope.chat = Chats.get($stateParams.chatId);
+.controller('ChatDetailCtrl', function($scope, $stateParams) {
 })
 
 // Settings controller

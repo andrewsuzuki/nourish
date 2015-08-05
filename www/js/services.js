@@ -7,16 +7,6 @@ angular.module('nourish.services', [])
   });
 })
 
-.factory('Chats', function(ChatSocket) {
-  var factory = {};
-
-  factory.all = function() {
-    return [];
-  };
-
-  return factory;
-})
-
 /**
  * The monolithic factory for hall, menu, and item data
  */
