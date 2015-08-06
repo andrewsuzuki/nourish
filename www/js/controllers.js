@@ -172,10 +172,11 @@ angular.module('nourish.controllers', [])
   // Grab all settings
   $scope.settings = UserSettings.all();
 
-  // Set up watch for each individual setting
-  $scope.$watch('settings.screenName', function() {
+  // When we leave settings...
+  $scope.$on('$ionicView.leave', function() {
+    // Update individual settings
     UserSettings.set('screenName', $scope.settings.screenName);
-  });
+  })
 });
 
 // Show meals/items for a hall on a date

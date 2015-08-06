@@ -1,7 +1,7 @@
 angular.module('nourish.services', [])
 
 // User settings factory
-.factory('UserSettings', function(AppSettings, Chats) {
+.factory('UserSettings', function(AppSettings, ChatSocket) {
   // Check if window.localStorage has our nourishUserSettings
   if (!window.localStorage.nourishUserSettings) {
     // Set it to default settings
@@ -14,9 +14,24 @@ angular.module('nourish.services', [])
   function syncSettings() {
     // Set settings on window
     window.localStorage.nourishUserSettings = JSON.stringify(settings);
-    // Update on Server
-    Chats.updateScreenName(settings.screenName);
+    // Update screen name on chat server
+    updateScreenName();
   }
+
+  /**
+   * Update screen name on chat server
+   */
+  function updateScreenName() {
+    if (typeof settings.screenName === 'string' && settings.screenName.length) {
+      ChatSocket.emit('screenname update', settings.screenName);
+    }
+  }
+
+  // On socket connection
+  ChatSocket.on('connect', function() {
+    // Update our screen name
+    updateScreenName();
+  });
 
   // Exposed service
   var factory = {};
@@ -65,7 +80,7 @@ angular.module('nourish.services', [])
 })
 
 // Chats factory
-.factory('Chats', function(ChatSocket, AppSettings) {
+.factory('Chats', function(ChatSocket, AppSettings, UserSettings) {
   var factory = {};
 
   // The flexer's current hall
