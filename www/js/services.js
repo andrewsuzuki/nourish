@@ -27,7 +27,7 @@ angular.module('nourish.services', [])
 
     // Loop halls
     factory.halls.some(function(hall) {
-      // Test
+      // Test names
       if (hall.name === hallName) {
         // Set our result
         result = hall;
@@ -37,7 +37,7 @@ angular.module('nourish.services', [])
     })
 
     // Return result's offers
-    return result.offers;
+    return result ? result.offers : [];
   };
 
   /**
@@ -69,13 +69,14 @@ angular.module('nourish.services', [])
   ChatSocket.on('offer update', function(offers) {
     // Loop our halls
     factory.halls.forEach(function(hall) {
+      // Clear current array without removing reference
+      hall.offers.splice(0, hall.offers.length);
       // If the retrieved offers includes one of our halls...
       if (offers.hasOwnProperty(hall.name) && Array.isArray(offers[hall.name])) {
-        // Update our hall's offers
-        hall.offers = offers[hall.name];
-      } else {
-        // Clear array without removing reference
-        hall.offers.splice(0, hall.offers.length);
+        // Merge in our hall's new offers in place
+        offers[hall.name].forEach(function(offer) {
+          hall.offers.push(offer);
+        });
       }
     });
   });

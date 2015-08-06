@@ -1,17 +1,18 @@
-<ion-view view-title="{{ hallName }}">
+<ion-view view-title="Flexers at {{ hallName }}">
   <ion-content>
+    <div class="card" ng-if="offers.length === 0">
+      <div class="item item-text-wrap">
+        Sorry, no flexers are in {{ hallName }} right now.
+      </div>
+    </div>
     <ion-list>
       <ion-item
-        class="item-remove-animate item-avatar item-icon-right"
+        class="item-remove-animate item-icon-right"
         ng-repeat="offer in offers"
         type="item-text-wrap"
         href="#/tab/chats">
-        <h2>{{ offer }}</h2>
+        <h2>{{ offer.screenName }}</h2>
         <i class="icon ion-chevron-right icon-accessory"></i>
-
-        <ion-option-button class="button-assertive" ng-click="">
-          Chat
-        </ion-option-button>
       </ion-item>
     </ion-list>
   </ion-content>
