@@ -40,6 +40,28 @@ angular.module('nourish', [
 .factory('Helpers', function(AppSettings) {
   return {
     /**
+     * Determines if a hall exists (in AppSettings)
+     * @param  {string} hallName name of hall
+     * @return {Boolean}
+     */
+    hallExists: function(hallName) {
+      // Exists flag
+      var exists = false;
+      // Loop halls in settings
+      AppSettings.halls.some(function(hall) {
+        // Test hall names
+        if (hall.name === hallName) {
+          // Set our flag
+          exists = true;
+          // Break loop
+          return true;
+        }
+      });
+      // Return exists flag
+      return exists;
+    },
+
+    /**
      * Take a date and format it
      * Turns today's/tomorrow's date into 'Today' and 'Tomorrow'
      * @param date    ISO/Moment date

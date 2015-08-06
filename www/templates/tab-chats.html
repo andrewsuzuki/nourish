@@ -30,9 +30,9 @@
         ng-repeat="hall in halls"
         href="#/tab/chats/hall/{{hall.name}}">
         {{ hall.name }}
-        <span ng-if="hall.offers > 0">
+        <span ng-if="hall.offers.length > 0">
           &mdash;
-          <span class="calm">{{ hall.offers }} offers</span>
+          <span class="calm">{{ hall.offers.length }} offers</span>
         </span>
       </ion-item>
     </ion-list>

@@ -7,6 +7,55 @@ angular.module('nourish.services', [])
   });
 })
 
+// Chats factory
+.factory('Chats', function(ChatSocket, AppSettings) {
+  var factory = {};
+
+  // The flexer's current hall
+  factory.hallChoice = undefined;
+
+  // List of halls with offers
+  factory.halls = [];
+
+  /**
+   * Sync current offer (hallChoice) with server
+   */
+  factory.updateOffer = function() {
+    if (!factory.hallChoice) {
+      factory.hallChoice = undefined; // qa
+      ChatSocket.emit('offer leave');
+    } else {
+      ChatSocket.emit('offer new', factory.hallChoice);
+    }
+  };
+
+  // Loop halls in settings
+  AppSettings.halls.forEach(function(hall) {
+    // Add hall to halls
+    factory.halls.push({
+      name: hall.name,
+      offers: []
+    });
+  });
+
+  // Listen for offer count updates
+  ChatSocket.on('offer update', function(offers) {
+    // Loop our halls
+    factory.halls.forEach(function(hall) {
+      // If the retrieved offers includes one of our halls...
+      if (offers.hasOwnProperty(hall.name) && Array.isArray(offers[hall.name])) {
+        // Update our hall's offers
+        hall.offers = offers[hall.name];
+      } else {
+        // Reset
+        hall.offers = [];
+      }
+    });
+  });
+
+  return factory;
+})
+
 /**
  * The monolithic factory for hall, menu, and item data
  */

@@ -82,51 +82,22 @@ angular.module('nourish.controllers', [])
 
 // Chats controller, shows list of halls (effective chat rooms)
 // as well as toggle for offer-making
-.controller('ChatsCtrl', function($scope, $ionicModal, ChatSocket, AppSettings) {
-  // With the new view caching in Ionic, Controllers are only called
-  // when they are recreated or on app start, instead of every page change.
-  // To listen for when this page is active (for example, to refresh data),
-  // listen for the $ionicView.enter event:
-  //
-  //$scope.$on('$ionicView.enter', function(e) {
-  //});
+.controller('ChatsCtrl', function($scope, $ionicModal, Chats, Helpers, AppSettings) {
 
   // The flexer's current hall
-  $scope.hallChoice = undefined;
+  $scope.hallChoice = Chats.hallChoice;
 
-  // Set up watch on $scope.hallChoice
-  $scope.$watch('hallChoice', updateOffer);
-
-  // List of halls with offers count
-  $scope.halls = [];
-
-  // Loop halls in settings
-  AppSettings.halls.forEach(function(hall) {
-    // Add hall to $scope.halls
-    $scope.halls.push({
-      name: hall.name,
-      offers: 0
-    });
+  // Set up watch on $scope.hallChoice to sync with Chats
+  $scope.$watch('hallChoice', function() {
+    Chats.hallChoice = $scope.hallChoice;
+    Chats.updateOffer();
   });
 
-  // Listen for offer count updates
-  ChatSocket.on('offer update', function(offers) {
-    // Loop our halls
-    $scope.halls.forEach(function(hall) {
-      // If the retrieved offers includes one of our halls...
-      if (offers.hasOwnProperty(hall.name)) {
-        // Update our hall's offers
-        hall.offers = parseInt(offers[hall.name]);
-      } else {
-        // Set to zero
-        hall.offers = 0;
-      }
-    });
-  });
-
-  $scope.leaveOffer = leaveOffer;
+  // List of halls with offers
+  $scope.halls = Chats.halls;
 
   // Set up offer-making modal
+  $scope.modal = {};
   $ionicModal.fromTemplateUrl('make-offer.html', {
     scope: $scope,
     animation: 'slide-in-up' // The only option? :(
@@ -135,60 +106,56 @@ angular.module('nourish.controllers', [])
     $scope.modal = modal;
   });
 
-  // Open offer modal
+  /**
+   * Leave offer
+   */
+  $scope.leaveOffer = function() {
+    $scope.hallChoice = undefined;
+  };
+
+  /**
+   * Open offer modal
+   */
   $scope.openOfferModal = function() {
     // Clear choice
     $scope.modal.hallChoice = undefined;
     $scope.hallChoice = undefined;
-    // TODO reset more things
+    // Show modal
     $scope.modal.show();
   };
 
-  // Save offer modal
+  /**
+   * Save offer modal
+   */
   $scope.saveOfferModal = function() {
     // Set hallChoice to selected hall in modal.hallChoice
-    $scope.hallChoice = $scope.modal.hallChoice;
+    if (Helpers.hallExists($scope.modal.hallChoice)) {
+      $scope.hallChoice = $scope.modal.hallChoice;
+    }
     // Hide modal
     $scope.modal.hide();
   };
 
-  // Cancel offer modal
+  /**
+   * Cancel offer modal
+   */
   $scope.cancelOfferModal = function() {
     // Hide modal
     $scope.modal.hide();
   };
 
-  // Execute action on hide modal
+  // Execute action when modal is hidden
   $scope.$on('modal.hidden', function() {
   });
 
-  // Cleanup the modal when we're done with it!
+  // Clean up the modal when leaving view
   $scope.$on('$destroy', function() {
     $scope.modal.remove();
   });
-
-  /**
-   * Sync our offer status with the server
-   */
-  function updateOffer() {
-    if (!$scope.hallChoice) {
-      ChatSocket.emit('offer leave');
-    } else {
-      ChatSocket.emit('offer new', $scope.hallChoice);
-    }
-  }
-
-  /**
-   * Leave offer and sync
-   */
-  function leaveOffer() {
-    $scope.hallChoice = undefined;
-  }
-
 })
 
 // Chat hall controller, list people with offers in hall
-.controller('ChatHallCtrl', function($scope, ChatSocket) {
+.controller('ChatHallCtrl', function($scope, Chats) {
 
 })
 
