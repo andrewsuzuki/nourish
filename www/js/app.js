@@ -31,7 +31,10 @@ angular.module('nourish', [
     'Lunch', // 1
     'Dinner', // 2
     'Brunch' // 3
-  ]
+  ],
+  defaultUserSettings: {
+    screenName: '', // if used, will be replaced
+  }
 })
 
 /**

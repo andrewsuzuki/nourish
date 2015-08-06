@@ -1,5 +1,62 @@
 angular.module('nourish.services', [])
 
+// User settings factory
+.factory('UserSettings', function(AppSettings, Chats) {
+  // Check if window.localStorage has our nourishUserSettings
+  if (!window.localStorage.nourishUserSettings) {
+    // Set it to default settings
+    window.localStorage.nourishUserSettings = JSON.stringify(AppSettings.defaultUserSettings);
+  }
+
+  // Make our local settings object
+  var settings = JSON.parse(window.localStorage.nourishUserSettings);
+
+  function syncSettings() {
+    // Set settings on window
+    window.localStorage.nourishUserSettings = JSON.stringify(settings);
+    // Update on Server
+    Chats.updateScreenName(settings.screenName);
+  }
+
+  // Exposed service
+  var factory = {};
+
+  /**
+   * Get all options from settings
+   * @return {object} all settings keys/values
+   */
+  factory.all = function() {
+    return settings;
+  };
+
+  /**
+   * Get option from settings
+   * @param  {string} option setting key
+   * @return {mixed}         setting value, or undefined if dne
+   */
+  factory.get = function(option) {
+    return settings[option];
+  };
+
+  /**
+   * Set option in settings
+   * @param  {string} option setting key
+   * @param  {mixed} value   setting value
+   */
+  factory.set = function(option, value) {
+    // Check if value settings property
+    if (settings.hasOwnProperty(option)) {
+      // Set new value
+      settings[option] = value;
+      // Sync with window storage
+      syncSettings();
+    }
+  };
+
+  // Return factory service
+  return factory;
+})
+
 // Chat socket factory
 .factory('ChatSocket', function(socketFactory, AppSettings) {
   return socketFactory({
@@ -54,6 +111,14 @@ angular.module('nourish.services', [])
       // Send new offer
       ChatSocket.emit('offer new', factory.hallChoice);
     }
+  };
+
+  /**
+   * Update our screenname on the server
+   * @param  {string} screenName new screen name
+   */
+  factory.updateScreenName = function(screenName) {
+    ChatSocket.emit('screenname update', screenName);
   };
 
   // Loop halls in settings

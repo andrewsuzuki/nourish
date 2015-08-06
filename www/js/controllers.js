@@ -168,10 +168,14 @@ angular.module('nourish.controllers', [])
 })
 
 // Settings controller
-.controller('SettingsCtrl', function($scope) {
-  $scope.settings = {
-    screenName: undefined,
-  };
+.controller('SettingsCtrl', function($scope, UserSettings) {
+  // Grab all settings
+  $scope.settings = UserSettings.all();
+
+  // Set up watch for each individual setting
+  $scope.$watch('settings.screenName', function() {
+    UserSettings.set('screenName', $scope.settings.screenName);
+  });
 });
 
 // Show meals/items for a hall on a date
