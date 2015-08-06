@@ -96,12 +96,6 @@ angular.module('nourish.controllers', [])
   // Get list of halls with offers
   $scope.halls = Chats.halls;
 
-  // Subscribe to Chats.halls updates
-  Chats.subscribeHalls(function() {
-    // Get list of halls with offers
-    $scope.halls = Chats.halls;
-  });
-
   // Set up offer-making modal
   $scope.modal = {};
   $ionicModal.fromTemplateUrl('make-offer.html', {
@@ -167,12 +161,6 @@ angular.module('nourish.controllers', [])
 
   // Get the current offers for this hall
   $scope.offers = Chats.getHallOffers($scope.hallName);
-
-  // Subscribe to Chats.halls updates
-  Chats.subscribeHalls(function(halls) {
-    // Get the current offers for this hall
-    $scope.offers = Chats.getHallOffers($scope.hallName);
-  });
 })
 
 // Chat Detail Controller, show single chat with other person

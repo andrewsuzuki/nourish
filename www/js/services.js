@@ -40,25 +40,6 @@ angular.module('nourish.services', [])
     return result.offers;
   };
 
-  // Subscribers for halls updates
-  var hallsSubscribers = [];
-
-  /**
-   * Subscribe to changes to halls
-   */
-  factory.subscribeHalls = function(cb) {
-    hallsSubscribers.push(cb);
-  };
-
-  /**
-   * Notify subscribers when halls change
-   */
-  factory.publishHalls = function() {
-    hallsSubscribers.forEach(function(cb) {
-      cb();
-    });
-  };
-
   /**
    * Sync current offer (hallChoice) with server
    */
@@ -93,13 +74,10 @@ angular.module('nourish.services', [])
         // Update our hall's offers
         hall.offers = offers[hall.name];
       } else {
-        // Reset
-        hall.offers = [];
+        // Clear array without removing reference
+        hall.offers.splice(0, hall.offers.length);
       }
     });
-
-    // Publish to subscribers
-    factory.publishHalls();
   });
 
   return factory;
