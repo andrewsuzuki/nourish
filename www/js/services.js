@@ -18,13 +18,59 @@ angular.module('nourish.services', [])
   factory.halls = [];
 
   /**
+   * Get a hall and its offers
+   * @param  {string} hallName name of hall
+   * @return {object|null}
+   */
+  factory.getHallOffers = function(hallName) {
+    var result = null;
+
+    // Loop halls
+    factory.halls.some(function(hall) {
+      // Test
+      if (hall.name === hallName) {
+        // Set our result
+        result = hall;
+        // Break from loop
+        return true;
+      }
+    })
+
+    // Return result's offers
+    return result.offers;
+  };
+
+  // Subscribers for halls updates
+  var hallsSubscribers = [];
+
+  /**
+   * Subscribe to changes to halls
+   */
+  factory.subscribeHalls = function(cb) {
+    hallsSubscribers.push(cb);
+  };
+
+  /**
+   * Notify subscribers when halls change
+   */
+  factory.publishHalls = function() {
+    hallsSubscribers.forEach(function(cb) {
+      cb();
+    });
+  };
+
+  /**
    * Sync current offer (hallChoice) with server
    */
   factory.updateOffer = function() {
+    // Is the user currently offering?
     if (!factory.hallChoice) {
-      factory.hallChoice = undefined; // qa
+      // Quality assurance
+      factory.hallChoice = undefined;
+      // Leave offer
       ChatSocket.emit('offer leave');
     } else {
+      // Send new offer
       ChatSocket.emit('offer new', factory.hallChoice);
     }
   };
@@ -51,6 +97,9 @@ angular.module('nourish.services', [])
         hall.offers = [];
       }
     });
+
+    // Publish to subscribers
+    factory.publishHalls();
   });
 
   return factory;

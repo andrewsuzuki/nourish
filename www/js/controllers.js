@@ -93,8 +93,14 @@ angular.module('nourish.controllers', [])
     Chats.updateOffer();
   });
 
-  // List of halls with offers
+  // Get list of halls with offers
   $scope.halls = Chats.halls;
+
+  // Subscribe to Chats.halls updates
+  Chats.subscribeHalls(function() {
+    // Get list of halls with offers
+    $scope.halls = Chats.halls;
+  });
 
   // Set up offer-making modal
   $scope.modal = {};
@@ -155,8 +161,18 @@ angular.module('nourish.controllers', [])
 })
 
 // Chat hall controller, list people with offers in hall
-.controller('ChatHallCtrl', function($scope, Chats) {
+.controller('ChatHallCtrl', function($scope, $stateParams, Chats) {
+  // Get the hall name from params
+  $scope.hallName = $stateParams.hallName;
 
+  // Get the current offers for this hall
+  $scope.offers = Chats.getHallOffers($scope.hallName);
+
+  // Subscribe to Chats.halls updates
+  Chats.subscribeHalls(function(halls) {
+    // Get the current offers for this hall
+    $scope.offers = Chats.getHallOffers($scope.hallName);
+  });
 })
 
 // Chat Detail Controller, show single chat with other person

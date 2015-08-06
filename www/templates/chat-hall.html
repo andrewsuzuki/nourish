@@ -1,14 +1,16 @@
-<ion-view view-title="{{ hall.name }}">
+<ion-view view-title="{{ hallName }}">
   <ion-content>
     <ion-list>
-      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="chat in chats" type="item-text-wrap" href="#/tab/chats/{{chat.id}}">
-        <img ng-src="{{chat.face}}">
-        <h2>{{chat.name}}</h2>
-        <p>{{chat.lastText}}</p>
+      <ion-item
+        class="item-remove-animate item-avatar item-icon-right"
+        ng-repeat="offer in offers"
+        type="item-text-wrap"
+        href="#/tab/chats">
+        <h2>{{ offer }}</h2>
         <i class="icon ion-chevron-right icon-accessory"></i>
 
-        <ion-option-button class="button-assertive" ng-click="remove(chat)">
-          Delete
+        <ion-option-button class="button-assertive" ng-click="">
+          Chat
         </ion-option-button>
       </ion-item>
     </ion-list>

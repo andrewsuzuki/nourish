@@ -164,7 +164,7 @@ angular.module('nourish', [
     templateUrl: 'templates/tabs.html'
   })
 
-  // Each tab has its own nav history stack
+  // Tab: Menu
 
   .state('tab.menu', {
     url: '/menu',
@@ -175,66 +175,62 @@ angular.module('nourish', [
       }
     }
   })
-
-  .state('tab.menu-today', {
-    url: '/menu/today',
-    views: {
-      'tab-menu': {
-        templateUrl: 'templates/tab-menu-today.html',
-        controller: 'MenuTodayCtrl'
+    .state('tab.menu-today', {
+      url: '/menu/today',
+      views: {
+        'tab-menu': {
+          templateUrl: 'templates/tab-menu-today.html',
+          controller: 'MenuTodayCtrl'
+        }
       }
-    }
-  })
-
-  .state('tab.menu-today-hall', {
-    url: '/menu/today/hall/:hallName',
-    views: {
-      'tab-menu': {
-        templateUrl: 'templates/tab-menu-hall.html',
-        controller: 'MenuTodayHallCtrl'
+    })
+      .state('tab.menu-today-hall', {
+        url: '/menu/today/hall/:hallName',
+        views: {
+          'tab-menu': {
+            templateUrl: 'templates/tab-menu-hall.html',
+            controller: 'MenuTodayHallCtrl'
+          }
+        }
+      })
+    .state('tab.menu-upcoming', {
+      url: '/menu/upcoming',
+      views: {
+        'tab-menu': {
+          templateUrl: 'templates/tab-menu-upcoming.html',
+          controller: 'MenuUpcomingCtrl'
+        }
       }
-    }
-  })
-
-  .state('tab.menu-upcoming', {
-    url: '/menu/upcoming',
-    views: {
-      'tab-menu': {
-        templateUrl: 'templates/tab-menu-upcoming.html',
-        controller: 'MenuUpcomingCtrl'
+    })
+      .state('tab.menu-upcoming-date', {
+        url: '/menu/upcoming/date/:date',
+        views: {
+          'tab-menu': {
+            templateUrl: 'templates/tab-menu-upcoming-date.html',
+            controller: 'MenuUpcomingDateCtrl'
+          }
+        }
+      })
+        .state('tab.menu-upcoming-date-hall', {
+          url: '/menu/upcoming/date/:date/hall/:hallName',
+          views: {
+            'tab-menu': {
+              templateUrl: 'templates/tab-menu-hall.html',
+              controller: 'MenuUpcomingDateHallCtrl'
+            }
+          }
+        })
+    .state('tab.menu-wings', {
+      url: '/menu/wings',
+      views: {
+        'tab-menu': {
+          templateUrl: 'templates/tab-menu-wings.html',
+          controller: 'MenuWingsCtrl'
+        }
       }
-    }
-  })
+    })
 
-  .state('tab.menu-upcoming-date', {
-    url: '/menu/upcoming/date/:date',
-    views: {
-      'tab-menu': {
-        templateUrl: 'templates/tab-menu-upcoming-date.html',
-        controller: 'MenuUpcomingDateCtrl'
-      }
-    }
-  })
-
-  .state('tab.menu-upcoming-date-hall', {
-    url: '/menu/upcoming/date/:date/hall/:hallName',
-    views: {
-      'tab-menu': {
-        templateUrl: 'templates/tab-menu-hall.html',
-        controller: 'MenuUpcomingDateHallCtrl'
-      }
-    }
-  })
-
-  .state('tab.menu-wings', {
-    url: '/menu/wings',
-    views: {
-      'tab-menu': {
-        templateUrl: 'templates/tab-menu-wings.html',
-        controller: 'MenuWingsCtrl'
-      }
-    }
-  })
+  // Tab: Flexer / Chats
 
   .state('tab.chats', {
       url: '/chats',
@@ -263,6 +259,8 @@ angular.module('nourish', [
         }
       }
     })
+
+  // Tab: Settings
 
   .state('tab.settings', {
     url: '/settings',
