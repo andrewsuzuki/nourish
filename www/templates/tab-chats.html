@@ -32,7 +32,10 @@
         {{ hall.name }}
         <span ng-if="hall.offers.length > 0">
           &mdash;
-          <span class="calm">{{ hall.offers.length }} offers</span>
+          <span class="calm">
+            {{ hall.offers.length }}
+            offer<span ng-if="hall.offers.length !== 1">s</span>
+          </span>
         </span>
       </ion-item>
     </ion-list>

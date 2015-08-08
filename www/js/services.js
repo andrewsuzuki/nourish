@@ -1,16 +1,7 @@
 angular.module('nourish.services', [])
 
 // User settings factory
-.factory('UserSettings', function(AppSettings, ChatSocket) {
-  // Check if window.localStorage has our nourishUserSettings
-  if (!window.localStorage.nourishUserSettings) {
-    // Set it to default settings
-    window.localStorage.nourishUserSettings = JSON.stringify(AppSettings.defaultUserSettings);
-  }
-
-  // Make our local settings object
-  var settings = JSON.parse(window.localStorage.nourishUserSettings);
-
+.factory('UserSettings', function(ChatSocket) {
   function syncSettings() {
     // Set settings on window
     window.localStorage.nourishUserSettings = JSON.stringify(settings);
@@ -26,12 +17,6 @@ angular.module('nourish.services', [])
       ChatSocket.emit('screenname update', settings.screenName);
     }
   }
-
-  // On socket connection
-  ChatSocket.on('connect', function() {
-    // Update our screen name
-    updateScreenName();
-  });
 
   // Exposed service
   var factory = {};
@@ -67,6 +52,47 @@ angular.module('nourish.services', [])
       syncSettings();
     }
   };
+
+  /**
+   * Returns a fake but suitable screen name
+   * if the user hasn't set one
+   * @return {string} 10-character random string
+   */
+  factory.fakeScreenName = function() {
+    return chance.string({
+      length: 10,
+      pool: 'abcdefghijklmnopqrstuvwxyz'
+    });
+  };
+
+  /**
+   * Setup
+   */
+
+  // Check if window.localStorage has our nourishUserSettings
+  if (!window.localStorage.nourishUserSettings) {
+    // Set it to default settings
+    window.localStorage.nourishUserSettings = JSON.stringify({});
+  }
+
+  // Make our local settings object
+  var settings = JSON.parse(window.localStorage.nourishUserSettings);
+
+  // Verify settings
+  if (!settings || typeof settings !== 'object' || !settings.screenName) {
+    // If not valid, make new settings object
+    settings = {
+      screenName: factory.fakeScreenName()
+    };
+    // Now save it
+    syncSettings();
+  }
+
+  // On socket connection
+  ChatSocket.on('connect', function() {
+    // Update our screen name
+    updateScreenName();
+  });
 
   // Return factory service
   return factory;

@@ -169,14 +169,33 @@ angular.module('nourish.controllers', [])
 
 // Settings controller
 .controller('SettingsCtrl', function($scope, UserSettings) {
-  // Grab all settings
-  $scope.settings = UserSettings.all();
+  // Get settings
+  getSettings();
 
-  // When we leave settings...
-  $scope.$on('$ionicView.leave', function() {
+  // Get saved settings whenever user enters view
+  $scope.$on('$ionicView.enter', getSettings);
+
+  $scope.saveSettings = saveSettings;
+
+  /**
+   * Get settings and set in scope
+   */
+  function getSettings() {
+    // Grab all settings and clone
+    $scope.settings = JSON.parse(JSON.stringify(UserSettings.all()));
+  }
+
+  /**
+   * Save settings in scope
+   */
+  function saveSettings() {
+    // If the screen name is empty, make a fake one
+    if (!$scope.settings.screenName.length) {
+      $scope.settings.screenName = UserSettings.fakeScreenName();
+    }
     // Update individual settings
     UserSettings.set('screenName', $scope.settings.screenName);
-  })
+  }
 });
 
 // Show meals/items for a hall on a date
