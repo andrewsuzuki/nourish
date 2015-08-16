@@ -21,3 +21,24 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 
 // Include all of Ionic
 @import "www/lib/ionic/scss/ionic";
+
+// Extra
+.chatMessageBox {
+  margin: 5px 0;
+
+  .chatMessage {
+    margin-bottom: 5px;
+    font-size: 18px;
+    line-height: 22px;
+
+    .name {
+      font-weight: bold;
+
+      .incoming {
+      }
+      .outgoing {
+        color: $balanced;
+      }
+    }
+  }
+}

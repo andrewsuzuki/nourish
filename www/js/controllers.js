@@ -175,17 +175,18 @@ angular.module('nourish.controllers', [])
   $scope.messages = Chats.getChat($stateParams.personId);
 
   // Init message box
-  $scope.outMessage = "";
+  $scope.outBox = {
+    outMessage: "",
+    send: function() {
+      // Make sure message length is non-zero
+      if ($scope.outBox.outMessage.length) {
+        // Send it
+        Chats.sendMessage($scope.person.id, $scope.outBox.outMessage);
+      }
 
-  $scope.send = function() {
-    // Make sure message length is non-zero
-    if ($scope.outMessage.length) {
-      // Send it
-      Chats.sendMessage($scope.person.id, $scope.outMessage);
+      // Clear out message box
+      $scope.outBox.outMessage = "";
     }
-
-    // Clear out message box
-    $scope.outMessage = "";
   };
 })
 

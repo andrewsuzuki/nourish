@@ -1,26 +1,21 @@
 <ion-view view-title="Chat with {{ person.screenName }}">
   <ion-content class="padding">
-    <ul>
-      <li ng-repeat="message in messages">
+    <ul class="chatMessageBox">
+      <li ng-repeat="message in messages" class="chatMessage">
         <span class="name">
-          <span ng-if="message.isIncoming">{{ person.screenName }}</span>
-          <span ng-if="!message.isIncoming">{{ me.screenName }}</span>
+          <span ng-if="message.isIncoming" class="incoming">{{ person.screenName }}</span>
+          <span ng-if="!message.isIncoming" class="outgoing">{{ me.screenName }}</span>
         </span>
         {{ message.body }}
       </li>
     </ul>
-
-    <div class="list">
-
-      <div class="item item-input-inset">
-        <label class="item-input-wrapper">
-          <input ng-model="$parent.outMessage" type="text" placeholder="Message">
-        </label>
-        <button ng-click="send()" class="button button-small">
-          Send
-        </button>
-      </div>
-
-    </div>
   </ion-content>
+  <ion-footer-bar class="bar-stable item-input-inset" keyboard-attach>
+    <label class="item-input-wrapper">
+      <input ng-model="outBox.outMessage" type="text" placeholder="Message">
+    </label>
+    <button ng-click="outBox.send()" class="button button-small">
+      Send
+    </button>
+  </ion-footer-bar>
 </ion-view>
