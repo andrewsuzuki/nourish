@@ -2,6 +2,12 @@ angular.module('nourish.services', [])
 
 // User settings factory
 .factory('UserSettings', function(ChatSocket) {
+  // Our settings object
+  var settings;
+
+  /**
+   * Save settings object to local window storage (as JSON)
+   */
   function syncSettings() {
     // Set settings on window
     window.localStorage.nourishUserSettings = JSON.stringify(settings);
@@ -18,7 +24,10 @@ angular.module('nourish.services', [])
     }
   }
 
-  // Exposed service
+  /**
+   * Exposed factory
+   * @type {Object}
+   */
   var factory = {};
 
   /**
@@ -75,8 +84,8 @@ angular.module('nourish.services', [])
     window.localStorage.nourishUserSettings = JSON.stringify({});
   }
 
-  // Make our local settings object
-  var settings = JSON.parse(window.localStorage.nourishUserSettings);
+  // Make our settings object
+  settings = JSON.parse(window.localStorage.nourishUserSettings);
 
   // Verify settings
   if (!settings || typeof settings !== 'object' || !settings.screenName) {
@@ -107,6 +116,10 @@ angular.module('nourish.services', [])
 
 // Chats factory
 .factory('Chats', function(ChatSocket, AppSettings, UserSettings) {
+  /**
+   * Exposed factory
+   * @type {Object}
+   */
   var factory = {};
 
   // The flexer's current hall
@@ -114,6 +127,9 @@ angular.module('nourish.services', [])
 
   // List of halls with offers
   factory.halls = [];
+
+  // This person's chats
+  factory.chats = {};
 
   /**
    * Get a hall and its offers
@@ -136,6 +152,29 @@ angular.module('nourish.services', [])
 
     // Return result's offers
     return result ? result.offers : [];
+  };
+
+  /**
+   * Find person who is offering by id
+   * @param  {string} personId Person's id
+   * @return {object|null}     The person, or null if not found
+   */
+  factory.findPersonById = function(personId) {
+    var result = null;
+    // Loop halls
+    factory.halls.some(function(hall) {
+      // Loop people
+      hall.offers.some(function(person) {
+        // Check id against person's id
+        if (person.id === personId) {
+          // Set our result
+          result = person;
+          // Break from loop
+          return true;
+        }
+      });
+    });
+    return result;
   };
 
   /**
@@ -162,6 +201,55 @@ angular.module('nourish.services', [])
     ChatSocket.emit('screenname update', screenName);
   };
 
+  /**
+   * Gets individual chat with another person,
+   * creating it if it doesn't exist
+   * @param  {string} personId id of the person
+   * @return {array}  the messages
+   */
+  factory.getChat = function(personId) {
+    // Check if the chat exists
+    if (!factory.chats.hasOwnProperty(personId)) {
+      // If not, then initialize it
+      factory.chats[personId] = [];
+    }
+    return factory.chats[personId];
+  };
+
+  /**
+   * Saves a message (incoming or outgoing) locally
+   * @param  {string}  personId   id of the other person
+   * @param  {Boolean} isIncoming Incoming (t) or outgoing (f)?
+   * @param  {string}  message    the message
+   */
+  factory.saveMessage = function(personId, isIncoming, message) {
+    // Get/create our chat
+    var chat = factory.getChat(personId);
+    // Push message
+    chat.push({
+      // Ensure isIncoming is a Boolean
+      isIncoming: Boolean(isIncoming),
+      // Ensure message is a String
+      message: String(message)
+    });
+  };
+
+  /**
+   * Send a message to a person
+   * @param  {string} personId id of the recipient
+   * @param  {string} message  the message
+   */
+  factory.sendMessage = function(personId, message) {
+    // Save it (not incoming)
+    factory.saveMessage(personId, false, message);
+
+    // Send it
+    ChatSocket.emit('message', {
+      to: personId,
+      body: message
+    });
+  };
+
   // Loop halls in settings
   AppSettings.halls.forEach(function(hall) {
     // Add hall to halls
@@ -185,6 +273,19 @@ angular.module('nourish.services', [])
         });
       }
     });
+
+    // TODO remove chats with terminated offers
+  });
+
+  // Listen for incoming messages
+  ChatSocket.on('message', function(message) {
+    // Make sure the message has a from and a body
+    if (!message.from || !message.body) {
+      return;
+    }
+
+    // Save it (is incoming)
+    factory.saveMessage(message.from, true, message.body);
   });
 
   return factory;
@@ -281,7 +382,7 @@ angular.module('nourish.services', [])
   }
 
   /**
-   * The factory
+   * Exposed factory
    * @type {Object}
    */
   var factory = {};

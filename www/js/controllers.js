@@ -164,7 +164,12 @@ angular.module('nourish.controllers', [])
 })
 
 // Chat Detail Controller, show single chat with other person
-.controller('ChatDetailCtrl', function($scope, $stateParams) {
+.controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
+  // Get person from id param
+  $scope.person = Chats.findPersonById($stateParams.personId);
+
+  // Get the messages by the person's id
+  $scope.messages = Chats.getChat($stateParams.personId);
 })
 
 // Settings controller

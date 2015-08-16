@@ -10,7 +10,7 @@
         class="item-remove-animate item-icon-right"
         ng-repeat="offer in offers"
         type="item-text-wrap"
-        href="#/tab/chats">
+        href="#/tab/chats/{{ offer.id }}">
         <h2>{{ offer.screenName }}</h2>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
