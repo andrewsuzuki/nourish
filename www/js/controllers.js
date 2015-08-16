@@ -168,8 +168,25 @@ angular.module('nourish.controllers', [])
   // Get person from id param
   $scope.person = Chats.findPersonById($stateParams.personId);
 
+  // Get me
+  $scope.me = Chats.findMe();
+
   // Get the messages by the person's id
   $scope.messages = Chats.getChat($stateParams.personId);
+
+  // Init message box
+  $scope.outMessage = "";
+
+  $scope.send = function() {
+    // Make sure message length is non-zero
+    if ($scope.outMessage.length) {
+      // Send it
+      Chats.sendMessage($scope.person.id, $scope.outMessage);
+    }
+
+    // Clear out message box
+    $scope.outMessage = "";
+  };
 })
 
 // Settings controller

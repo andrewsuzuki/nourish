@@ -178,6 +178,28 @@ angular.module('nourish.services', [])
   };
 
   /**
+   * Get this person ("me")
+   * @return {object|null} person, or null if not found
+   */
+  factory.findMe = function() {
+    var result = null;
+    // Loop halls
+    factory.halls.some(function(hall) {
+      // Loop people
+      hall.offers.some(function(person) {
+        // Check screen name against ours
+        if (person.screenName === UserSettings.get('screenName')) {
+          // Set our result
+          result = person;
+          // Break from loop
+          return true;
+        }
+      });
+    });
+    return result;
+  };
+
+  /**
    * Sync current offer (hallChoice) with server
    */
   factory.updateOffer = function() {
@@ -220,33 +242,33 @@ angular.module('nourish.services', [])
    * Saves a message (incoming or outgoing) locally
    * @param  {string}  personId   id of the other person
    * @param  {Boolean} isIncoming Incoming (t) or outgoing (f)?
-   * @param  {string}  message    the message
+   * @param  {string}  body       the message body
    */
-  factory.saveMessage = function(personId, isIncoming, message) {
+  factory.saveMessage = function(personId, isIncoming, body) {
     // Get/create our chat
     var chat = factory.getChat(personId);
     // Push message
     chat.push({
       // Ensure isIncoming is a Boolean
       isIncoming: Boolean(isIncoming),
-      // Ensure message is a String
-      message: String(message)
+      // Ensure message body is a String
+      body: String(body)
     });
   };
 
   /**
    * Send a message to a person
    * @param  {string} personId id of the recipient
-   * @param  {string} message  the message
+   * @param  {string} body     the message body
    */
-  factory.sendMessage = function(personId, message) {
+  factory.sendMessage = function(personId, body) {
     // Save it (not incoming)
-    factory.saveMessage(personId, false, message);
+    factory.saveMessage(personId, false, body);
 
     // Send it
     ChatSocket.emit('message', {
       to: personId,
-      body: message
+      body: body
     });
   };
 
