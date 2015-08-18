@@ -173,28 +173,12 @@ angular.module('nourish.services', [])
           return true;
         }
       });
-    });
-    return result;
-  };
 
-  /**
-   * Get this person ("me")
-   * @return {object|null} person, or null if not found
-   */
-  factory.findMe = function() {
-    var result = null;
-    // Loop halls
-    factory.halls.some(function(hall) {
-      // Loop people
-      hall.offers.some(function(person) {
-        // Check screen name against ours
-        if (person.screenName === UserSettings.get('screenName')) {
-          // Set our result
-          result = person;
-          // Break from loop
-          return true;
-        }
-      });
+      // Check if we have our result
+      if (result) {
+        // Break from loop
+        return true;
+      }
     });
     return result;
   };
@@ -241,16 +225,16 @@ angular.module('nourish.services', [])
   /**
    * Saves a message (incoming or outgoing) locally
    * @param  {string}  personId   id of the other person
-   * @param  {Boolean} isIncoming Incoming (t) or outgoing (f)?
+   * @param  {Boolean} type       0 = outgoing, 1 = incoming, 2 = notice
    * @param  {string}  body       the message body
    */
-  factory.saveMessage = function(personId, isIncoming, body) {
+  factory.saveMessage = function(personId, type, body) {
     // Get/create our chat
     var chat = factory.getChat(personId);
     // Push message
     chat.push({
-      // Ensure isIncoming is a Boolean
-      isIncoming: Boolean(isIncoming),
+      // Ensure type is a Number
+      type: Number(type),
       // Ensure message body is a String
       body: String(body)
     });
@@ -262,14 +246,24 @@ angular.module('nourish.services', [])
    * @param  {string} body     the message body
    */
   factory.sendMessage = function(personId, body) {
-    // Save it (not incoming)
-    factory.saveMessage(personId, false, body);
+    // Save it as outgoing
+    factory.saveMessage(personId, 0, body);
 
     // Send it
     ChatSocket.emit('message', {
       to: personId,
       body: body
     });
+  };
+
+  /**
+   * Show system notice as chat message
+   * @param  {string} personId id of the recipient in target chat
+   * @param  {string} body     the message body
+   */
+  factory.showNotice = function(personId, body) {
+    // Save it as a notice
+    factory.saveMessage(personId, 2, body);
   };
 
   // Loop halls in settings
@@ -306,8 +300,8 @@ angular.module('nourish.services', [])
       return;
     }
 
-    // Save it (is incoming)
-    factory.saveMessage(message.from, true, message.body);
+    // Save it (as incoming)
+    factory.saveMessage(message.from, 1, message.body);
   });
 
   return factory;

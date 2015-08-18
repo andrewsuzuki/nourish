@@ -3,8 +3,9 @@
     <ul class="chatMessageBox">
       <li ng-repeat="message in messages" class="chatMessage">
         <span class="name">
-          <span ng-if="message.isIncoming" class="incoming">{{ person.screenName }}</span>
-          <span ng-if="!message.isIncoming" class="outgoing">{{ me.screenName }}</span>
+          <span ng-if="message.type === 0" class="outgoing">{{ userSettings.screenName }}</span>
+          <span ng-if="message.type === 1" class="incoming">{{ person.screenName }}</span>
+          <span ng-if="message.type === 2" class="notice">Notice</span>
         </span>
         {{ message.body }}
       </li>

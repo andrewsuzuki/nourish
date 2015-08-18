@@ -25,10 +25,25 @@
         </ul>
       </div>
     </div>
-    <ion-list>
+    <ion-list ng-if="!hallChoice">
       <ion-item
         ng-repeat="hall in halls"
-        href="#/tab/chats/hall/{{hall.name}}">
+        href="#/tab/chats/hall/{{hall.name}}"
+        class="item-icon-right">
+        {{ hall.name }}
+        <span ng-if="hall.offers.length > 0">
+          &mdash;
+          <span class="calm">
+            {{ hall.offers.length }}
+            offer<span ng-if="hall.offers.length !== 1">s</span>
+          </span>
+        </span>
+        <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>
+    </ion-list>
+    <ion-list ng-if="hallChoice">
+      <ion-item
+        ng-repeat="hall in halls">
         {{ hall.name }}
         <span ng-if="hall.offers.length > 0">
           &mdash;

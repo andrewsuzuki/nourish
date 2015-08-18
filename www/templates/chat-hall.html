@@ -7,10 +7,10 @@
     </div>
     <ion-list>
       <ion-item
-        class="item-remove-animate item-icon-right"
         ng-repeat="offer in offers"
         type="item-text-wrap"
-        href="#/tab/chats/{{ offer.id }}">
+        href="#/tab/chats/{{ offer.id }}"
+        class="item-remove-animate item-icon-right">
         <h2>{{ offer.screenName }}</h2>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
